@@ -94,7 +94,8 @@ DESCRIPTION (SEO Priority)
 - Use keyword variations: "bag" "pouch" / "jacket" "coat" / "hoodie" "sweatshirt"
 - Describe condition details only if clearly mentioned in source.
 - Avoid evaluative adjectives (excellent, good, mint, beautiful).
-- Exclude shipping/seller opinions/history/warranty.
+- NEVER include shipping information (delivery times, packaging methods, shipping speed, carriers, etc.).
+- NEVER include seller opinions, purchase/sales history, or warranty information.
 
 PRODUCTNAME
 - Format: [Brand] [Line/Collection] [Product Type], English ASCII only.

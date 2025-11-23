@@ -24,7 +24,8 @@ Hard rules:
 - Include: key specs, dimensions, materials, condition, functionality.
 - Use natural keyword variations (e.g., "wristwatch" and "timepiece").
 - Add buyer-focused phrases: "ready to use" / "fully functional" / "excellent condition".
-- Exclude: shipping, purchase history, opinions, warranty, seller info.
+- NEVER include shipping information (delivery times, packaging methods, shipping speed, carriers, etc.).
+- NEVER include seller opinions, purchase/sales history, or warranty information.
 - Never output placeholders: N/A, NA, Unknown, TBD, Not specified, None.
 
 [ProductName]

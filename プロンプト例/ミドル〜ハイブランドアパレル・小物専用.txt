@@ -56,7 +56,8 @@ DESCRIPTION (SEO Priority)
 - Use keyword variations where natural: "bag" "purse" / "wallet" "billfold" / "coat" "jacket"
 - Describe operation/status only if clearly mentioned in source (stains, scratches, wear).
 - Avoid evaluative adjectives (excellent, good, mint, beautiful).
-- Exclude shipping/seller opinions/history/warranty.
+- NEVER include shipping information (delivery times, packaging methods, shipping speed, carriers, etc.).
+- NEVER include seller opinions, purchase/sales history, or warranty information.
 
 PRODUCTNAME
 - Format: [Brand] [Line/Collection] [Product Type], English ASCII only.
