@@ -4,95 +4,259 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>プロンプト編集機能 - 超初心者向けガイド</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        /* ========================================
+           CSS Variables - Theme Definitions
+           ======================================== */
+        :root, [data-theme="default"] {
+            --bg-body: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg-container: #ffffff;
+            --bg-card: #ffffff;
+            --bg-highlight: #e8f0fe;
+            --bg-example: #f8f9fa;
+            --bg-warning: #fff3cd;
+            --bg-info: #d1ecf1;
+            --bg-footer: #f8f9fa;
+            --text-primary: #333333;
+            --text-secondary: #6c757d;
+            --text-header: #ffffff;
+            --accent-primary: #1a73e8;
+            --accent-secondary: #4285f4;
+            --accent-success: #28a745;
+            --accent-warning: #ffc107;
+            --accent-info: #17a2b8;
+            --border-color: #dee2e6;
+            --card-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            --card-radius: 20px;
+            --font-base: 16px;
         }
 
+        [data-theme="simple"] {
+            --bg-body: #ffffff;
+            --bg-container: #ffffff;
+            --bg-card: #ffffff;
+            --bg-highlight: #f5f5f5;
+            --bg-example: #f5f5f5;
+            --bg-warning: #fffbeb;
+            --bg-info: #eff6ff;
+            --bg-footer: #ffffff;
+            --text-primary: #111111;
+            --text-secondary: #666666;
+            --text-header: #111111;
+            --accent-primary: #111111;
+            --accent-secondary: #0066ff;
+            --accent-success: #111111;
+            --accent-warning: #f59e0b;
+            --accent-info: #3b82f6;
+            --border-color: #e5e5e5;
+            --card-shadow: none;
+            --card-radius: 0;
+            --font-base: 16px;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #141428;
+            --bg-container: transparent;
+            --bg-card: #1a1a35;
+            --bg-highlight: rgba(0, 212, 255, 0.1);
+            --bg-example: rgba(255, 255, 255, 0.03);
+            --bg-warning: rgba(255, 221, 0, 0.1);
+            --bg-info: rgba(0, 212, 255, 0.1);
+            --bg-footer: transparent;
+            --text-primary: #ffffff;
+            --text-secondary: #8888aa;
+            --text-header: #ffffff;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #bf00ff;
+            --accent-success: #00ff88;
+            --accent-warning: #ffdd00;
+            --accent-info: #00d4ff;
+            --border-color: #2a2a50;
+            --card-shadow: 0 0 30px rgba(0, 212, 255, 0.1);
+            --card-radius: 20px;
+            --font-base: 17px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-size: var(--font-base);
             line-height: 1.8;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
+            color: var(--text-primary);
+            background: var(--bg-body);
+            min-height: 100vh;
+            transition: all 0.4s ease;
+        }
+
+        [data-theme="default"] body { padding: 20px; }
+        [data-theme="simple"] body { padding: 80px 24px; }
+        [data-theme="dark"] body { padding: 60px 24px; }
+
+        [data-theme="dark"] body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            background: var(--bg-container);
+            box-shadow: var(--card-shadow);
+            border-radius: var(--card-radius);
             overflow: hidden;
+            transition: all 0.4s ease;
         }
 
+        [data-theme="simple"] .container { max-width: 800px; padding: 0; }
+        [data-theme="dark"] .container { padding: 0; }
+
+        /* Theme Switcher */
+        .theme-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            border-radius: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        [data-theme="dark"] .theme-switcher {
+            background: rgba(20, 20, 40, 0.95);
+            border: 1px solid #2a2a50;
+        }
+
+        .theme-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .theme-btn[data-target="default"] { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .theme-btn[data-target="simple"] { background: #111; color: white; }
+        .theme-btn[data-target="dark"] { background: linear-gradient(135deg, #00d4ff, #bf00ff); color: #0a0a0f; }
+        .theme-btn:not(.active) { opacity: 0.4; }
+        .theme-btn:hover { opacity: 1; transform: scale(1.05); }
+        .theme-btn.active { opacity: 1; }
+
+        /* Header */
         header {
             background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
-            color: white;
+            color: var(--text-header);
             padding: 40px 30px;
             text-align: center;
+            transition: all 0.4s ease;
+        }
+
+        [data-theme="simple"] header { background: transparent; padding: 0; margin-bottom: 60px; text-align: left; }
+        [data-theme="dark"] header {
+            background: transparent;
+            padding: 80px 40px;
+            position: relative;
+        }
+
+        [data-theme="dark"] header::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         header h1 {
             font-size: 2.2em;
-            margin-bottom: 0;
             font-weight: 700;
+            margin-bottom: 0;
+            transition: all 0.4s ease;
         }
 
-        .content {
-            padding: 40px 30px;
+        [data-theme="simple"] header h1 { font-size: 2.2em; color: var(--text-primary); white-space: nowrap; }
+        [data-theme="dark"] header h1 {
+            font-size: 2.4em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00d4ff, #bf00ff, #ff0080);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            white-space: nowrap;
         }
 
-        .section {
-            margin-bottom: 50px;
-        }
+        .content { padding: 40px 30px; transition: all 0.4s ease; }
+        [data-theme="simple"] .content { padding: 0; }
+        [data-theme="dark"] .content { padding: 40px; }
+
+        .section { margin-bottom: 50px; }
 
         .section h2 {
-            color: #1a73e8;
+            color: var(--accent-primary);
             font-size: 1.8em;
             margin-bottom: 20px;
             padding-bottom: 10px;
-            border-bottom: 3px solid #e8f0fe;
+            border-bottom: 3px solid var(--bg-highlight);
+            transition: all 0.4s ease;
+        }
+
+        [data-theme="dark"] .section h2 {
+            border-bottom-color: var(--border-color);
         }
 
         .section h3 {
-            color: #333;
+            color: var(--text-primary);
             font-size: 1.4em;
             margin: 30px 0 15px 0;
             padding-left: 15px;
-            border-left: 4px solid #1a73e8;
+            border-left: 4px solid var(--accent-primary);
         }
 
-        .section p {
-            margin-bottom: 15px;
-            font-size: 1.05em;
-        }
+        .section p { margin-bottom: 15px; font-size: 1.05em; }
 
         .highlight-box {
-            background: #e8f0fe;
+            background: var(--bg-highlight);
             border-radius: 10px;
             padding: 25px;
             margin: 20px 0;
+            transition: all 0.4s ease;
         }
 
-        .highlight-box strong {
-            color: #1a73e8;
-            font-size: 1.15em;
-        }
+        [data-theme="simple"] .highlight-box { border-radius: 0; border-left: 3px solid var(--accent-primary); }
+        [data-theme="dark"] .highlight-box { border: 1px solid var(--border-color); }
+
+        .highlight-box strong { color: var(--accent-primary); font-size: 1.15em; }
 
         .example-box {
-            background: #f8f9fa;
-            border: 2px solid #dee2e6;
+            background: var(--bg-example);
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             padding: 20px;
             margin: 20px 0;
             font-family: 'Courier New', monospace;
+            transition: all 0.4s ease;
         }
 
+        [data-theme="simple"] .example-box { border-radius: 0; }
+        [data-theme="dark"] .example-box { border: 1px solid var(--border-color); }
+
         .example-box .label {
-            background: #6c757d;
+            background: var(--accent-primary);
             color: white;
             padding: 5px 15px;
             border-radius: 5px;
@@ -100,6 +264,12 @@
             margin-bottom: 15px;
             font-size: 0.9em;
             font-weight: bold;
+            font-family: 'Noto Sans JP', sans-serif;
+        }
+
+        [data-theme="dark"] .example-box .label {
+            background: linear-gradient(135deg, #00d4ff, #bf00ff);
+            color: #0a0a0f;
         }
 
         .comparison-table {
@@ -110,128 +280,151 @@
         }
 
         .comparison-table th {
-            background: #1a73e8;
+            background: var(--accent-primary);
             color: white;
             padding: 15px;
             text-align: left;
             font-weight: 600;
         }
 
+        [data-theme="dark"] .comparison-table th {
+            background: linear-gradient(135deg, #00d4ff, #bf00ff);
+            color: #0a0a0f;
+        }
+
         .comparison-table td {
             padding: 15px;
-            border-bottom: 1px solid #dee2e6;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
         }
 
-        .comparison-table tr:nth-child(even) {
-            background: #f8f9fa;
-        }
+        .comparison-table tr:nth-child(even) { background: var(--bg-example); }
+        .comparison-table tr:hover { background: var(--bg-highlight); }
 
-        .comparison-table tr:hover {
-            background: #e8f0fe;
-        }
-
-        .icon-list {
-            list-style: none;
-            padding: 0;
-        }
-
+        .icon-list { list-style: none; padding: 0; }
         .icon-list li {
             padding: 12px 0;
             padding-left: 35px;
             position: relative;
             font-size: 1.05em;
         }
-
         .icon-list li:before {
             content: "✓";
             position: absolute;
             left: 0;
-            color: #28a745;
+            color: var(--accent-success);
             font-weight: bold;
             font-size: 1.3em;
         }
 
+        [data-theme="dark"] .icon-list li:before { color: var(--accent-success); }
+
         .warning-box {
-            background: #fff3cd;
-            border-left: 5px solid #ffc107;
+            background: var(--bg-warning);
+            border-left: 5px solid var(--accent-warning);
             padding: 20px;
             margin: 20px 0;
             border-radius: 8px;
+            transition: all 0.4s ease;
         }
 
-        .warning-box h4 {
-            color: #856404;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-        }
+        [data-theme="simple"] .warning-box { border-radius: 0; }
+        [data-theme="dark"] .warning-box { border: 1px solid var(--accent-warning); border-left-width: 5px; }
+
+        .warning-box h4 { color: #856404; margin-bottom: 10px; font-size: 1.2em; }
+        [data-theme="dark"] .warning-box h4 { color: var(--accent-warning); }
+        [data-theme="dark"] .warning-box { color: var(--text-secondary); }
 
         .info-box {
-            background: #d1ecf1;
-            border-left: 5px solid #17a2b8;
+            background: var(--bg-info);
+            border-left: 5px solid var(--accent-info);
             padding: 20px;
             margin: 20px 0;
             border-radius: 8px;
+            transition: all 0.4s ease;
         }
 
-        .info-box h4 {
-            color: #0c5460;
-            margin-bottom: 10px;
-            font-size: 1.2em;
+        [data-theme="simple"] .info-box { border-radius: 0; }
+        [data-theme="dark"] .info-box { border: 1px solid var(--accent-info); border-left-width: 5px; }
+
+        .info-box h4 { color: #0c5460; margin-bottom: 10px; font-size: 1.2em; }
+        [data-theme="dark"] .info-box h4 { color: var(--accent-info); }
+        [data-theme="dark"] .info-box { color: var(--text-secondary); }
+
+        .video-container {
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 2px solid var(--accent-primary);
+        }
+
+        [data-theme="dark"] .video-container { border-color: var(--border-color); }
+
+        .btn-download {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .btn-download:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6); }
+
+        [data-theme="dark"] .btn-download {
+            background: linear-gradient(135deg, #00d4ff, #bf00ff);
+            color: #0a0a0f;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
         }
 
         footer {
-            background: #f8f9fa;
+            background: var(--bg-footer);
             padding: 30px;
             text-align: center;
-            color: #6c757d;
-            border-top: 1px solid #dee2e6;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            transition: all 0.4s ease;
         }
 
-        footer p {
-            margin: 5px 0;
-        }
+        [data-theme="simple"] footer { margin-top: 60px; }
+        [data-theme="dark"] footer { border-top-color: var(--border-color); margin-top: 40px; }
 
         @media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            header h1 {
-                font-size: 1.6em;
-            }
-
-            .content {
-                padding: 20px 15px;
-            }
-
-            .section h2 {
-                font-size: 1.4em;
-            }
-
-            .comparison-table {
-                font-size: 0.9em;
-            }
+            .theme-switcher { top: 10px; right: 10px; padding: 6px 10px; }
+            .theme-btn { padding: 6px 12px; font-size: 0.75em; }
+            header h1 { font-size: 1.6em; white-space: normal; }
+            .content { padding: 20px 15px; }
+            .section h2 { font-size: 1.4em; }
+            .comparison-table { font-size: 0.9em; }
         }
     </style>
 </head>
-<body>
+<body data-theme="default">
+    <div class="theme-switcher">
+        <button class="theme-btn active" data-target="default">通常</button>
+        <button class="theme-btn" data-target="simple">シンプル</button>
+        <button class="theme-btn" data-target="dark">ダーク</button>
+    </div>
+
     <div class="container">
         <header>
-            <h1>📝 プロンプト編集機能ガイド</h1>
+            <h1>プロンプト編集機能ガイド</h1>
         </header>
 
         <div class="content">
-            <!-- セクション1: プロンプトとは？ -->
             <section class="section">
-                <h2>📖 そもそも「プロンプト」って何？</h2>
-
+                <h2>そもそも「プロンプト」って何？</h2>
                 <div class="highlight-box">
                     <strong>プロンプトとは...</strong>
                     <p>AIに対して「こういうことをしてほしい」とお願いする<strong>指示文</strong>のことです。</p>
                 </div>
 
-                <h3>🔍 具体例で理解しよう</h3>
-
+                <h3>具体例で理解しよう</h3>
                 <p>たとえば、あなたがAIに「商品のタイトルを英語で作って」とお願いするとします。</p>
 
                 <div class="example-box">
@@ -254,7 +447,7 @@
                 </div>
 
                 <div class="info-box">
-                    <h4>💡 プロンプトを詳しくすると...</h4>
+                    <h4>プロンプトを詳しくすると...</h4>
                     <ul class="icon-list">
                         <li>AIの回答が具体的になる</li>
                         <li>毎回同じ品質の回答がもらえる</li>
@@ -263,12 +456,10 @@
                 </div>
             </section>
 
-            <!-- セクション2: ChatGPTとAPIの違い -->
             <section class="section">
-                <h2>🤔 ChatGPTのGPTsとAPI接続って何が違うの？</h2>
+                <h2>ChatGPTのGPTsとAPI接続って何が違うの？</h2>
 
-                <h3>1️⃣ ChatGPTのGPTs（ジーピーティーズ）</h3>
-
+                <h3>1. ChatGPTのGPTs（ジーピーティーズ）</h3>
                 <div class="highlight-box">
                     <strong>GPTsとは...</strong>
                     <p>ChatGPTのウェブサイト上で、<strong>あらかじめプロンプトを設定しておける機能</strong>です。</p>
@@ -283,21 +474,7 @@
                     <li><strong>デメリット：</strong> 手作業で一つずつ処理する必要がある</li>
                 </ul>
 
-                <div class="info-box">
-                    <h4>💡 GPTsの記憶機能って？</h4>
-                    <p>
-                        GPTsは会話の履歴を覚えているので、使えば使うほど<strong>あなた専用にカスタマイズ</strong>されます。
-                    </p>
-                    <p><strong>例えば：</strong></p>
-                    <ul class="icon-list">
-                        <li>「いつも丁寧な言葉遣いで」→ 次回から自動で丁寧語に</li>
-                        <li>「ブランド名は必ず最初に」→ それが標準スタイルになる</li>
-                        <li>過去のやり取りから、あなたの好みを学んでいく</li>
-                    </ul>
-                </div>
-
-                <h3>2️⃣ API接続（エーピーアイせつぞく）</h3>
-
+                <h3>2. API接続（エーピーアイせつぞく）</h3>
                 <div class="highlight-box">
                     <strong>APIとは...</strong>
                     <p>プログラムが<strong>自動的にAIを呼び出して、大量の処理をまとめて実行できる仕組み</strong>です。</p>
@@ -305,31 +482,7 @@
 
                 <p><strong>イメージ：</strong> 工場の機械が自動でお弁当を100個作ってくれる感じ。</p>
 
-                <ul class="icon-list">
-                    <li><strong>使い方：</strong> Googleスプレッドシートなどのプログラムから自動実行</li>
-                    <li><strong>メリット：</strong> 大量の商品データを一気に処理できる</li>
-                    <li><strong>記憶機能：</strong> なし（毎回独立して処理される）</li>
-                    <li><strong>デメリット：</strong> 最初の設定がちょっと難しい</li>
-                </ul>
-
-                <div class="warning-box">
-                    <h4>⚠️ でも大丈夫！プロンプト編集で同じ効果が得られます</h4>
-                    <p>
-                        APIには記憶機能がありませんが、<strong>プロンプトをしっかり調整する</strong>ことで、GPTsの記憶機能と同じような効果を実現できます！
-                    </p>
-                    <p><strong>具体的には：</strong></p>
-                    <ul class="icon-list">
-                        <li><strong>プロンプトに好みを書き込む</strong><br>「必ず丁寧語で」「ブランド名は最初に」などをプロンプトに明記</li>
-                        <li><strong>カテゴリーごとにプロンプトを使い分ける</strong><br>ファッション用、電化製品用など、商品に合わせた専用プロンプトを作成</li>
-                        <li><strong>一度設定すれば、何千件でも同じ品質で処理</strong><br>GPTsのように「育てる」必要がなく、最初から完璧な状態で大量処理できる</li>
-                    </ul>
-                    <p>
-                        <strong>つまり：</strong> GPTsは「会話で少しずつ育てる」、APIは「最初に完璧に設定して大量生産」というイメージです。
-                    </p>
-                </div>
-
-                <h3>📊 比較表で見てみよう</h3>
-
+                <h3>比較表で見てみよう</h3>
                 <table class="comparison-table">
                     <thead>
                         <tr>
@@ -360,30 +513,15 @@
                             <td>△ プロンプト調整で同等の効果</td>
                         </tr>
                         <tr>
-                            <td><strong>カスタマイズ</strong></td>
-                            <td>会話で少しずつ育てる</td>
-                            <td>最初に完璧に設定して大量生産</td>
-                        </tr>
-                        <tr>
                             <td><strong>初心者向け</strong></td>
                             <td>◎ とても簡単</td>
                             <td>△ 最初は難しいけど慣れれば楽</td>
-                        </tr>
-                        <tr>
-                            <td><strong>費用</strong></td>
-                            <td>月額20ドル（固定）</td>
-                            <td>使った分だけ課金（通常は安い）</td>
-                        </tr>
-                        <tr>
-                            <td><strong>スピード</strong></td>
-                            <td>遅い（手作業）</td>
-                            <td>速い（自動処理）</td>
                         </tr>
                     </tbody>
                 </table>
 
                 <div class="warning-box">
-                    <h4>⚠️ 注意点</h4>
+                    <h4>注意点</h4>
                     <p>
                         <strong>今回のeBay一括出品シートでは「API接続」を使っています。</strong><br>
                         そのため、プロンプトをGoogleスプレッドシート内で編集する必要があります。<br>
@@ -392,9 +530,8 @@
                 </div>
             </section>
 
-            <!-- セクション3: なぜプロンプト編集が必要？ -->
             <section class="section">
-                <h2>🎯 なぜプロンプトを編集する必要があるの？</h2>
+                <h2>なぜプロンプトを編集する必要があるの？</h2>
 
                 <h3>理由1: 商品に合わせた説明文を作りたい</h3>
                 <p>
@@ -416,237 +553,67 @@
                 </p>
 
                 <div class="info-box">
-                    <h4>💡 実際の改善例</h4>
+                    <h4>実際の改善例</h4>
                     <p><strong>改善前：</strong> タイトルが長すぎてeBayの制限を超えてしまう...</p>
                     <p><strong>改善後：</strong> プロンプトに「80文字以内で」と追加 → 完璧！</p>
                 </div>
             </section>
 
-            <!-- セクション4: どんな人がプロンプト編集を使うべき？ -->
             <section class="section">
-                <h2>👤 どんな人がプロンプト編集を使うべき？</h2>
+                <h2>実践！プロンプト編集の4ステップ</h2>
 
-                <div class="highlight-box">
-                    <p>以下のどれかに当てはまる方は、プロンプト編集機能を活用すると効果的です！</p>
-                </div>
-
-                <ul class="icon-list">
-                    <li><strong>特定のジャンルに特化している方</strong><br>（例：時計専門、カメラ専門、アニメグッズ専門など）</li>
-                    <li><strong>出品文の「言い回し」にこだわりがある方</strong><br>（例：丁寧な敬語、フレンドリーな口調など）</li>
-                    <li><strong>eBayのポリシーに合わせて細かく調整したい方</strong><br>（例：禁止ワードを避ける、特定の表現を使うなど）</li>
-                    <li><strong>複数の商品カテゴリで異なる戦略を使いたい方</strong><br>（例：新品と中古で異なるプロンプトを使い分ける）</li>
-                </ul>
-
-                <div class="warning-box">
-                    <h4>⚠️ 逆に、こんな方は編集不要かも</h4>
-                    <p>
-                        「デフォルトの設定で十分！」という方は、無理に編集する必要はありません。<br>
-                        初期設定のプロンプトでも、基本的な商品情報は十分に生成できます。
-                    </p>
-                </div>
-            </section>
-
-            <!-- セクション5: まとめ -->
-            <section class="section">
-                <h2>✅ この章のまとめ</h2>
-
-                <div class="highlight-box">
-                    <ol style="padding-left: 20px; line-height: 2;">
-                        <li><strong>プロンプト</strong> = AIへの指示文</li>
-                        <li><strong>GPTs</strong> = ChatGPTサイトで使う機能（手作業向け）</li>
-                        <li><strong>API接続</strong> = プログラムから自動実行（大量処理向け）</li>
-                        <li>今回使うのは「<strong>API接続</strong>」なので、スプレッドシート内で編集する</li>
-                        <li>プロンプト編集は、商品や戦略に合わせて<strong>カスタマイズ</strong>するため</li>
-                    </ol>
-                </div>
-
-                <div class="info-box">
-                    <h4>🎓 次のステップ</h4>
-                    <p>
-                        次は、<strong>実際にプロンプトを編集する手順</strong>を、<br>
-                        動画で分かりやすく解説します！
-                    </p>
-                </div>
-            </section>
-
-            <!-- セクション6: 実践編の4ステップ -->
-            <section class="section">
-                <h2>🎬 実践！プロンプト編集の4ステップ</h2>
-
-                <p style="font-size: 1.1em; margin-bottom: 30px;">
-                    ここからは、実際にプロンプトを編集していく手順を<strong>動画付き</strong>で解説します。<br>
-                    初めての方でも迷わず進められるよう、4つのステップに分けて説明していきます。
-                </p>
-
-                <!-- ステップ1 -->
                 <div class="highlight-box" style="margin-bottom: 40px;">
-                    <h3 style="color: #1a73e8; margin-top: 0;">📍 ステップ1: プロンプトの場所を確認しよう</h3>
-                    <p>
-                        まずは、<strong>一括出品シートのどこにプロンプトが設定されているか</strong>を確認します。<br>
-                        このシートでは「GPT_Prompts」という専用シートでプロンプトを管理しています。
-                    </p>
+                    <h3 style="margin-top: 0;">ステップ1: プロンプトの場所を確認しよう</h3>
+                    <p>まずは、<strong>一括出品シートのどこにプロンプトが設定されているか</strong>を確認します。</p>
 
-                    <div style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; border: 2px solid #1a73e8;">
-                        <p style="margin: 0 0 15px 0; text-align: center; color: #666;">
-                            📹 <strong>動画：プロンプトの場所を確認する</strong>
-                        </p>
-                        <!-- 動画埋め込み -->
-                        <div style="padding:64.95% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1139177605?h=6b4e362696&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="プロンプトの場所 2025-11-21 13.18.19"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
-                    </div>
-
-                    <div class="info-box">
-                        <h4>💡 このステップで分かること</h4>
-                        <ul class="icon-list">
-                            <li>「GPT_Prompts」シートの開き方</li>
-                            <li>プロンプトIDと内容の見方</li>
-                            <li>どのプロンプトが現在使われているか</li>
-                        </ul>
+                    <div class="video-container">
+                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 15px;"><strong>動画：プロンプトの場所を確認する</strong></p>
+                        <div style="padding:64.95% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1139177605?h=6b4e362696&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="プロンプトの場所"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
                     </div>
                 </div>
 
-                <!-- ステップ2 -->
                 <div class="highlight-box" style="margin-bottom: 40px;">
-                    <h3 style="color: #1a73e8; margin-top: 0;">✏️ ステップ2: プロンプトを編集してみよう</h3>
-                    <p>
-                        プロンプトの場所が分かったら、次は<strong>実際に編集する方法</strong>を学びます。<br>
-                        サイドバーから簡単に編集できる仕組みになっています。
-                    </p>
+                    <h3 style="margin-top: 0;">ステップ2: プロンプトを編集してみよう</h3>
+                    <p>プロンプトの場所が分かったら、次は<strong>実際に編集する方法</strong>を学びます。</p>
 
-                    <div style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; border: 2px solid #1a73e8;">
-                        <p style="margin: 0 0 15px 0; text-align: center; color: #666;">
-                            📹 <strong>動画：プロンプトを編集する手順</strong>
-                        </p>
-                        <!-- 動画埋め込み -->
-                        <div style="padding:64.95% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1139263421?h=94a2e566fd&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="プロンプト編集手順2025-11-21 19.54.04"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
-                    </div>
-
-                    <div class="info-box">
-                        <h4>💡 このステップで分かること</h4>
-                        <ul class="icon-list">
-                            <li>プロンプト編集サイドバーの開き方</li>
-                            <li>プロンプトIDの選択方法</li>
-                            <li>内容の編集と保存の仕方</li>
-                        </ul>
+                    <div class="video-container">
+                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 15px;"><strong>動画：プロンプトを編集する手順</strong></p>
+                        <div style="padding:64.95% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1139263421?h=94a2e566fd&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="プロンプト編集手順"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
                     </div>
                 </div>
 
-                <!-- ステップ3 -->
                 <div class="highlight-box" style="margin-bottom: 40px;">
-                    <h3 style="color: #1a73e8; margin-top: 0;">🤖 ステップ3: ChatGPTを使ってプロンプトを作ろう</h3>
-                    <p>
-                        「どんなプロンプトを書けばいいか分からない...」という方も安心！<br>
-                        <strong>ChatGPTなどのチャットボット</strong>を使えば、プロンプトを簡単に作成できます。
-                    </p>
+                    <h3 style="margin-top: 0;">ステップ3: ChatGPTを使ってプロンプトを作ろう</h3>
+                    <p>「どんなプロンプトを書けばいいか分からない...」という方も安心！<strong>ChatGPT</strong>を使えば、プロンプトを簡単に作成できます。</p>
 
-                    <div style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 8px; border: 2px solid #1a73e8;">
-                        <p style="margin: 0 0 15px 0; text-align: center; color: #666;">
-                            📹 <strong>動画：ChatGPTでプロンプトを作成する</strong>
-                        </p>
-                        <!-- 動画埋め込み -->
-                        <div style="padding:64.95% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1139268517?h=bac9803706&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="ChatGPTを使ってプロンプトを作成 2025-11-21 20.05.29"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
+                    <div class="video-container">
+                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 15px;"><strong>動画：ChatGPTでプロンプトを作成する</strong></p>
+                        <div style="padding:64.95% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/1139268517?h=bac9803706&amp;badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="ChatGPTでプロンプト作成"></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>
                     </div>
 
-                    <div class="info-box">
-                        <h4>💡 このステップで分かること</h4>
-                        <ul class="icon-list">
-                            <li>ChatGPTへの効果的な質問の仕方</li>
-                            <li>商品カテゴリに合わせたプロンプトの作成</li>
-                            <li>作成したプロンプトのシートへの貼り付け方</li>
-                        </ul>
-                    </div>
-
-                    <div class="example-box">
-                        <div class="label">ChatGPTへの質問例</div>
-                        <p>
-                            「eBayで時計を出品するためのAIプロンプトを作ってください。<br>
-                            ・タイトルは80文字以内<br>
-                            ・ブランド名を最初に入れる<br>
-                            ・状態（新品/中古）を明記<br>
-                            ・型番を含める<br>
-                            上記の条件でお願いします。」
-                        </p>
-                    </div>
-
-                    <!-- プロンプト作例ボタン -->
-                    <div style="margin: 30px 0; text-align: center;">
-                        <a href="https://naokijodan.github.io/prompt-editor-guide/%E3%83%97%E3%83%AD%E3%83%B3%E3%83%97%E3%83%88%E4%BD%9C%E4%BE%8B.zip"
-                           download="プロンプト作例.zip"
-                           style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 30px; text-decoration: none; font-weight: bold; font-size: 1.1em; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); transition: transform 0.2s, box-shadow 0.2s;"
-                           onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(102, 126, 234, 0.6)';"
-                           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(102, 126, 234, 0.4)';">
-                            📥 プロンプト作例をダウンロード
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="https://naokijodan.github.io/prompt-editor-guide/%E3%83%97%E3%83%AD%E3%83%B3%E3%83%97%E3%83%88%E4%BD%9C%E4%BE%8B.zip" download="プロンプト作例.zip" class="btn-download">
+                            プロンプト作例をダウンロード
                         </a>
                     </div>
-
-                    <div class="info-box">
-                        <h4>📋 ZIPファイルの内容</h4>
-                        <p>ダウンロードしたZIPには、以下のカテゴリー別プロンプトが含まれています：</p>
-                        <ul class="icon-list">
-                            <li><strong>一般・汎用.txt</strong> - 様々な商品に使える基本プロンプト</li>
-                            <li><strong>時計専用.txt</strong> - 時計出品に特化したプロンプト</li>
-                            <li><strong>ミドル〜ハイブランドアパレル・小物専用.txt</strong> - ブランド品向けプロンプト</li>
-                            <li><strong>日本ブランド特化.txt</strong> - 日本製品に特化したプロンプト</li>
-                            <li><strong>ゲーム用.txt</strong> - ゲーム関連商品向けプロンプト</li>
-                            <li><strong>フィギュア用.txt</strong> - フィギュア・コレクタブル向けプロンプト</li>
-                        </ul>
-                        <p style="margin-top: 15px; font-size: 0.95em; color: #666;">
-                            💡 ZIPを解凍後、各ファイルをテキストエディタで開いてご利用ください。
-                        </p>
-                    </div>
                 </div>
 
-                <!-- ステップ4 -->
-                <div class="highlight-box" style="margin-bottom: 40px;">
-                    <h3 style="color: #1a73e8; margin-top: 0;">✅ ステップ4: プロンプトをチューニングして完成させよう</h3>
-
-                    <p style="font-size: 1.1em; line-height: 1.9;">
-                        プロンプトは<strong>一度作って終わりではありません</strong>。<br>
-                        より良いものに仕上げるため、ご自身でチューニングしてあげてください。
-                    </p>
-
-                    <div class="info-box">
-                        <h4>🔧 継続的な改善のポイント</h4>
-                        <ul class="icon-list">
-                            <li><strong>状況の変化に合わせて見直す</strong><br>商品ラインナップや販売戦略が変わったら、プロンプトも更新しましょう</li>
-                            <li><strong>ChatGPTのGPTsと比較してみる</strong><br>「もっとこうしたい」という要望が出てきたら、それを実現できるプロンプトをAIに投げかけてください</li>
-                            <li><strong>定期的にチューニングする</strong><br>たまには見直して、より満足度の高い結果が得られるよう調整しましょう</li>
-                        </ul>
-                    </div>
-
-                    <div class="warning-box">
-                        <h4>⚠️ 基本的なチェックポイント</h4>
-                        <p><strong>プロンプトを試した後、以下を確認しましょう：</strong></p>
-                        <ul class="icon-list">
-                            <li>タイトルが80文字以内に収まっているか</li>
-                            <li>必要な情報（ブランド名、状態、型番など）が含まれているか</li>
-                            <li>不自然な日本語や英語が混ざっていないか</li>
-                            <li>eBayのポリシーに違反する表現がないか</li>
-                        </ul>
-                    </div>
-
-                    <div style="background: linear-gradient(135deg, #e8f0fe 0%, #f0e8fe 100%); padding: 25px; border-radius: 10px; margin-top: 20px;">
-                        <p style="font-size: 1.15em; font-weight: bold; color: #1a73e8; margin-bottom: 10px;">💡 最後に</p>
-                        <p style="line-height: 1.9; color: #333;">
-                            このように<strong>プロンプトを継続的に改善</strong>していくことで、<br>
-                            あなたのビジネスに最適な、<strong>満足度の高いプロンプト</strong>が完成します。<br>
-                            ぜひ、試行錯誤を楽しみながら、理想のプロンプトを作り上げてください！
-                        </p>
-                    </div>
-                </div>
-
-                <!-- プロンプト反映と検証の重要性 -->
-                <div class="info-box" style="margin-bottom: 40px;">
-                    <h4>🔄 プロンプトの反映と検証について</h4>
-                    <p style="line-height: 1.9;">
-                        最終的に作成したプロンプトをシートの<strong>AS2セル</strong>に反映させるには、<strong>初期設定を再度実行</strong>してください。<br>
-                        また、生成されたタイトルや説明文がチャットボットと比べて<strong>どのように異なるか</strong>を検証してください。<br>
-                        一度の検証では十分な答えが得られないため、<strong>同じ商品を2～3回試すこと</strong>を推奨します。
-                    </p>
-                </div>
-
-                <!-- まとめ -->
                 <div class="highlight-box">
-                    <h3 style="color: #1a73e8; margin-top: 0;">🎯 4ステップのまとめ</h3>
+                    <h3 style="margin-top: 0;">ステップ4: プロンプトをチューニングして完成させよう</h3>
+                    <p>プロンプトは<strong>一度作って終わりではありません</strong>。より良いものに仕上げるため、ご自身でチューニングしてあげてください。</p>
+
+                    <div class="info-box">
+                        <h4>継続的な改善のポイント</h4>
+                        <ul class="icon-list">
+                            <li><strong>状況の変化に合わせて見直す</strong> - 商品ラインナップや販売戦略が変わったら、プロンプトも更新</li>
+                            <li><strong>ChatGPTのGPTsと比較してみる</strong> - 「もっとこうしたい」という要望が出てきたら、それを実現できるプロンプトをAIに投げかける</li>
+                            <li><strong>定期的にチューニングする</strong> - たまには見直して、より満足度の高い結果が得られるよう調整</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="highlight-box">
+                    <h3 style="margin-top: 0;">4ステップのまとめ</h3>
                     <ol style="padding-left: 20px; line-height: 2; font-size: 1.05em;">
                         <li><strong>ステップ1：</strong> プロンプトの場所を確認（GPT_Promptsシート）</li>
                         <li><strong>ステップ2：</strong> サイドバーで編集する方法を習得</li>
@@ -663,8 +630,31 @@
         <footer>
             <p><strong>eBay一括出品シート - プロンプト編集ガイド</strong></p>
             <p>最終更新日: 2025年11月21日</p>
-            <p>バージョン: 1.1</p>
         </footer>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const themeBtns = document.querySelectorAll('.theme-btn');
+            const savedTheme = localStorage.getItem('bulk-guide-theme') || 'default';
+            setTheme(savedTheme);
+
+            themeBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-target');
+                    setTheme(theme);
+                    localStorage.setItem('bulk-guide-theme', theme);
+                });
+            });
+
+            function setTheme(theme) {
+                body.setAttribute('data-theme', theme);
+                themeBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.getAttribute('data-target') === theme);
+                });
+            }
+        });
+    </script>
 </body>
 </html>
